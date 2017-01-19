@@ -8,7 +8,7 @@ from ev3dev.ev3 import *
 motor_left = LargeMotor('outB')
 motor_right = LargeMotor('outC')
 motor_a = MediumMotor('outA')
-print("running")
+speed = 400
 #==============================================
 
 def getch():
@@ -54,6 +54,11 @@ def left(speed):
 def right(speed):
    motor_left.run_forever(speed_sp=speed)
    motor_right.run_forever(speed_sp=-speed)
+#===============================================
+
+def jokes(type):
+   if type == 's':
+      print("Are You Sure You Wish to Self Destruct?")
 
 #==============================================
 
@@ -62,34 +67,62 @@ def stop():
    motor_right.run_forever(speed_sp=0)
    motor_a.run_forever(speed_sp=0)
 #==============================================
-speed = 400
-while True:
-   k = getch()
-   print(k)
-   if k == 'w':
-      forward(speed)
-   if k == 's':
-      back(speed)
-   if k == 'a':
-      left(speed)
-   if k == 'd':
-      right(speed)
-   if k == 'q':
-      fire_forward()
-   if k == 'e':
-      fire_backward()
-   if k == ' ':
-      stop()
-   if k == 'z':
-      exit()
-   if k == 'm':
-      if speed < 900:
-         speed = speed + 100
-         print(speed)
-      else:
-         print("max speed!")
-   if k == 'n':
-      if speed > 0:
-         speed = speed - 100
-         print(speed)
-      else: print("Speed is Zero!")
+
+def manual():
+   while True:
+      k = getch()
+      print(k)
+      if k == 'w':
+         forward(speed)
+      if k == 's':
+         back(speed)
+      if k == 'a':
+         left(speed)
+      if k == 'd':
+         right(speed)
+      if k == 'q':
+         fire_forward()
+      if k == 'e':
+         fire_backward()
+      if k == ' ':
+         stop()
+      if k == 'z':
+         exit()
+      if k == 'm':
+         if speed < 900:
+            speed = speed + 100
+            print(speed)
+         else:
+            print("max speed!")
+      if k == 'n':
+         if speed > 0:
+            speed = speed - 100
+            print(speed)
+         else: print("Speed is Zero!")
+
+#=======================================
+
+def auto():
+   None
+
+#======================================
+
+print("Please Select a Mode")
+print ("Autonomous (a) or Manual (m)")
+k = None
+while k!='a' and k!='m':
+    k = getch()
+    if k == 'a':
+       auto()
+    if k == 'm':
+       manual()
+    if k == 's':
+       jokes(s)
+    else:
+       print("Please Enter (a) or (m)!")
+
+
+
+
+
+
