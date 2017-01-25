@@ -22,14 +22,14 @@ def getch():
 
 #==============================================
 
-def fire_forward():
-   motor_a.run_forever(speed_sp=1000)
+def fire_forward(ss):
+   motor_a.run_forever(speed_sp= ss)
 
 
 #==============================================
 
-def fire_backward():
-   motor_a.run_forever(speed_sp=-1000)
+def fire_backward(ss):
+   motor_a.run_forever(speed_sp=-ss)
 
 
 #==============================================
@@ -65,11 +65,17 @@ def jokes(type):
 def stop():
    motor_left.run_forever(speed_sp=0)
    motor_right.run_forever(speed_sp=0)
-   motor_a.run_forever(speed_sp=0)
+
 #==============================================
 
+def stopSweeper():
+   motor_a.run_forever(speed_sp=0)
+
+#==============================================
 def manual():
+   print("Manual Mode Engaged!")
    speed = 500
+   ss = 500
    while True:
       k = getch()
       #print(k)
@@ -82,24 +88,40 @@ def manual():
       if k == 'd':
          right(speed)
       if k == 'q':
-         fire_forward()
+         fire_forward(ss)
       if k == 'e':
-         fire_backward()
+         fire_backward(ss)
       if k == ' ':
          stop()
+      if k == 'v':
+         stopSweeper()
       if k == 'z':
          exit()
       if k == 'm':
          if speed < 900:
             speed = speed + 100
-            print(speed)
+            print("Moving Speed is " + str(speed))
          else:
-            print("max speed!")
+            print("max moving speed!")
       if k == 'n':
          if speed > 0:
             speed = speed - 100
-            print(speed)
+            print("Moving Speed is " + str(speed))
          else: print("Speed is Zero!")
+      if k == 'k':
+         if ss < 900:
+            ss = ss + 100
+            print("Sweeper Speed is " + str(ss))
+         else:
+            print("max sweeper speed!")
+      if k == 'j':
+         if ss > 0:
+            ss = ss - 100
+            print("Sweeper Speed is " + str(ss))
+         else: print("Speed is Zero!")
+      if k == 'b':
+         break
+   test()
 
 #=======================================
 
@@ -109,6 +131,7 @@ def auto():
 #======================================
 
 def test():
+   print("Test Mode Engaged!")
    while True:
       k = getch()
       if k == 't':
@@ -118,9 +141,23 @@ def test():
          color = ColorSensor('in3')
          color.mode = 'COL-COLOR'
          print(color.value())
+      if k =='u':
+         us = UltrasonicSensor()
+         us.mode = 'US-DIST-CM'
+         units = us.units
+         distance = us.value()/10  # convert mm to cm
+         print(str(distance) + " " + units)
+      if k == 'g':
+         gy = GyroSensor('in3')
+         gy.mode='GYRO-ANG'
+         units = gy.units
+         angle = gy.value()
+         print(str(angle) + " " + units)
+      if k == 'b':
+         break
       if k == 'z':
          exit()
-
+   manual()
 #======================================
 
 print("Please Select a Mode")
