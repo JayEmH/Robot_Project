@@ -124,8 +124,35 @@ def manual():
    test()
 
 #=======================================
+def turnLeftAuto():
+   gy = GyroSensor()
+   gy.mode = 'GYRO-ANG'
+   initialAngle = gy.value
+   finalAngle = initialAngle + 90
+   while gy.value != finalAngle:
+      left(100)
+#=======================================
+def turnRightAuto():
+   gy = GyroSensor()
+   gy.mode = 'GYRO-ANG'
+   initialAngle = gy.value
+   finalAngle = initialAngle - 90
+   while gy.value != finalAngle:
+      right(100)
 
+#======================================
 def auto():
+   us = UltrasonicSensor()
+   us.mode = 'US-DIST-CM'
+   distance = us.value() / 10
+   while True:
+      if distance > 10:
+         forward(200)
+      else:
+         turnRightAuto()
+         if distance <10:
+            turnLeftAuto()
+            turnLeftAuto()
    exit()
 
 #======================================
