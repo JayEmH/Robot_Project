@@ -3,6 +3,7 @@
 
 import termios, tty, sys
 from ev3dev.ev3 import *
+from time import sleep
 
 # attach large motors to ports B and C, medium motor to port A
 motor_left = LargeMotor('outB')
@@ -124,48 +125,97 @@ def manual():
    test()
 
 #=======================================
-def turnRightAuto():
-   gy = GyroSensor()
-   gy.mode = 'GYRO-ANG'
+def turnRightAuto(turnDeg):
+   gy = GyroSensor('in1')
+   #gy.mode = 'GYRO-ANG'
    initialAngle = gy.value()
-   finalAngle = initialAngle + 90
+   finalAngle = initialAngle + turnDeg
+   back(100)
+   sleep(1)
+   stop()
    while gy.value() < finalAngle:
       right(100)
       unitg = gy.units
-      print(str(gy.value()) + " " + unitg)
+      #print(str(gy.value()) + " " + unitg)
+      touch1 = TouchSensor('in4')
+      if touch1.value() == 1:
+         stop()
+         stopSweeper()
+         exit()
+   print("Right Turn Success")
    stop()
-   exit()
 #=======================================
-def turnLeftAuto():
-   gy = GyroSensor()
-   gy.mode = 'GYRO-ANG'
+def turnLeftAuto(turnDeg):
+   gy = GyroSensor('in1')
+   #gy.mode = 'GYRO-ANG'
    initialAngle = gy.value()
-   finalAngle = initialAngle - 90
+   finalAngle = initialAngle - turnDeg
+   back(100)
+   sleep(1)
+   stop()
    while gy.value() > finalAngle:
       left(100)
       unitg = gy.units
-      print(str(gy.value()) + " " + unitg)
+      #print(str(gy.value()) + " " + unitg)
+      touch1 = TouchSensor('in4')
+      if touch1.value() == 1:
+         stop()
+         stopSweeper()
+         exit()
+   print("left turn success")
    stop()
-   exit()
+
+#======================================
+def checkPath(expectedAngle, actualAngle): #Checks to see if the robot has strayed off path
+   if expectedAngle > (actualAngle + 5):
+      print('Expected: ' + str(expectedAngle))
+      print('Actual: ' + str(actualAngle))
+      offset = expectedAngle - actualAngle
+      turnRightAuto(offset)
+      print('Offset left ' + str(offset))
+   elif expectedAngle < (actualAngle -5):
+      print('Expected: ' + str(expectedAngle))
+      print('Actual: ' + str(actualAngle))
+      offset = expectedAngle - actualAngle
+      turnLeftAuto(offset)
+      print('offset right ' + str(offset))
+   else:
+      None
 
 #======================================
 def auto():
-   us = UltrasonicSensor()
+   c = 1
+   us = UltrasonicSensor('in2')
    us.mode = 'US-DIST-CM'
+   gy = GyroSensor('in1')
+   gy.mode = 'GYRO-ANG'
+   initialAngle = gy.value()/10
+   expectedAngle = initialAngle
+   fire_forward(500)
    while True:
+      #checkPath(expectedAngle, (gy.value()/10))
       distance = us.value()/10  # convert mm to cm
       units = us.units
       print(str(distance) + " " + units)
-      if distance > 25:
+      if ((distance > 5) and (distance <20)):
          forward(200)
       else:
-         turnRightAuto()
-         while distance <25:
+         if c == 1:
+            turnRightAuto(90)
+            expectedAngle += 45
+            distance = us.value()/10
+            c = 0
+
+         else:
             distance = us.value()/10
             print(str(distance) + " " + units)
-            turnLeftAuto()
-      touch1 = TouchSensor('in1')
+            turnLeftAuto(180)
+            expectedAngle -= 90
+            c = 1
+      touch1 = TouchSensor('in4')
       if touch1.value() == 1:
+         stop()
+         stopSweeper()
          exit()
    exit()
 
@@ -176,20 +226,20 @@ def test():
    while True:
       k = getch()
       if k == 't':
-         touch1 = TouchSensor('in1')
+         touch1 = TouchSensor('in4')
          print(touch1.value())
       if k == 'c':
          color = ColorSensor('in3')
          color.mode = 'COL-COLOR'
          print(color.value())
       if k =='u':
-         us = UltrasonicSensor()
+         us = UltrasonicSensor('in2')
          us.mode = 'US-DIST-CM'
          units = us.units
          distance = us.value()/10  # convert mm to cm
          print(str(distance) + " " + units)
       if k == 'g':
-         gy = GyroSensor('in3')
+         gy = GyroSensor('in1')
          gy.mode='GYRO-ANG'
          units = gy.units
          angle = gy.value()
