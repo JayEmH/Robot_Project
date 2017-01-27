@@ -124,26 +124,28 @@ def manual():
    test()
 
 #=======================================
-def turnLeftAuto():
-   gy = GyroSensor()
-   gy.mode = 'GYRO-ANG'
-   initialAngle = gy.value()
-   finalAngle = initialAngle + 90
-   while gy.value() > finalAngle:
-      left(100)
-      unitg = gy.units
-      print(str(gy.value()) + " " + unitg)
-   exit()
-#=======================================
 def turnRightAuto():
    gy = GyroSensor()
    gy.mode = 'GYRO-ANG'
    initialAngle = gy.value()
-   finalAngle = initialAngle - 90
+   finalAngle = initialAngle + 90
    while gy.value() < finalAngle:
       right(100)
       unitg = gy.units
       print(str(gy.value()) + " " + unitg)
+   stop()
+   exit()
+#=======================================
+def turnLeftAuto():
+   gy = GyroSensor()
+   gy.mode = 'GYRO-ANG'
+   initialAngle = gy.value()
+   finalAngle = initialAngle - 90
+   while gy.value() > finalAngle:
+      left(100)
+      unitg = gy.units
+      print(str(gy.value()) + " " + unitg)
+   stop()
    exit()
 
 #======================================
