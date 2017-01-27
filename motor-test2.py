@@ -127,32 +127,44 @@ def manual():
 def turnLeftAuto():
    gy = GyroSensor()
    gy.mode = 'GYRO-ANG'
-   initialAngle = gy.value
+   initialAngle = gy.value()
    finalAngle = initialAngle + 90
-   while gy.value != finalAngle:
+   while gy.value() > finalAngle:
       left(100)
+      unitg = gy.units
+      print(str(gy.value()) + " " + unitg)
+   exit()
 #=======================================
 def turnRightAuto():
    gy = GyroSensor()
    gy.mode = 'GYRO-ANG'
-   initialAngle = gy.value
+   initialAngle = gy.value()
    finalAngle = initialAngle - 90
-   while gy.value != finalAngle:
+   while gy.value() < finalAngle:
       right(100)
+      unitg = gy.units
+      print(str(gy.value()) + " " + unitg)
+   exit()
 
 #======================================
 def auto():
    us = UltrasonicSensor()
    us.mode = 'US-DIST-CM'
-   distance = us.value() / 10
    while True:
-      if distance > 10:
+      distance = us.value()/10  # convert mm to cm
+      units = us.units
+      print(str(distance) + " " + units)
+      if distance > 25:
          forward(200)
       else:
          turnRightAuto()
-         if distance <10:
+         while distance <25:
+            distance = us.value()/10
+            print(str(distance) + " " + units)
             turnLeftAuto()
-            turnLeftAuto()
+      touch1 = TouchSensor('in1')
+      if touch1.value() == 1:
+         exit()
    exit()
 
 #======================================
