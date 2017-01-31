@@ -130,18 +130,12 @@ def turnRightAuto(turnDeg):
    #gy.mode = 'GYRO-ANG'
    initialAngle = gy.value()
    finalAngle = initialAngle + turnDeg
-   back(100)
-   sleep(1)
    stop()
    while gy.value() < finalAngle:
       right(100)
       unitg = gy.units
       #print(str(gy.value()) + " " + unitg)
       touch1 = TouchSensor('in4')
-      if touch1.value() == 1:
-         stop()
-         stopSweeper()
-         exit()
    print("Right Turn Success")
    stop()
 #=======================================
@@ -151,17 +145,11 @@ def turnLeftAuto(turnDeg):
    initialAngle = gy.value()
    finalAngle = initialAngle - turnDeg
    back(100)
-   sleep(1)
-   stop()
    while gy.value() > finalAngle:
       left(100)
       unitg = gy.units
       #print(str(gy.value()) + " " + unitg)
       touch1 = TouchSensor('in4')
-      if touch1.value() == 1:
-         stop()
-         stopSweeper()
-         exit()
    print("left turn success")
    stop()
 
@@ -185,38 +173,135 @@ def checkPath(expectedAngle, actualAngle): #Checks to see if the robot has stray
 #======================================
 def auto():
    c = 1
+   c2 =0
+   ts1 = TouchSensor('in3')
+   ts2 = TouchSensor('in4')
+   btn = Button()
    us = UltrasonicSensor('in2')
    us.mode = 'US-DIST-CM'
    gy = GyroSensor('in1')
    gy.mode = 'GYRO-ANG'
    initialAngle = gy.value()/10
    expectedAngle = initialAngle
-   fire_forward(500)
+   #fire_forward(500)
    while True:
       #checkPath(expectedAngle, (gy.value()/10))
       distance = us.value()/10  # convert mm to cm
       units = us.units
       print(str(distance) + " " + units)
-      if ((distance > 5) and (distance <20)):
-         forward(200)
-      else:
-         if c == 1:
-            turnRightAuto(90)
-            expectedAngle += 45
-            distance = us.value()/10
-            c = 0
-
-         else:
-            distance = us.value()/10
-            print(str(distance) + " " + units)
-            turnLeftAuto(180)
-            expectedAngle -= 90
-            c = 1
-      touch1 = TouchSensor('in4')
-      if touch1.value() == 1:
+      c2 += 1
+      if c2 == 15:
+         c=1
+         print("WARNING: Turn Count Reset")
+      if btn.any():
          stop()
          stopSweeper()
          exit()
+      if (((distance > 5) and (distance <20)) and (ts1.value() == 0) and (ts2.value() ==0)):
+         forward(200)
+      else:
+         c2 = 0
+         if ts1.value() == 1 or ts2.value() == 1:
+            back (100)
+            sleep(1)
+         else:
+            None
+         if c == 1:
+            turnRightAuto(10)
+            back(100)
+            sleep(1)
+            expectedAngle += 45
+            distance = us.value()/10
+            c = 2
+         elif c == 2:
+            distance = us.value()/10
+            print(str(distance) + " " + units)
+            turnLeftAuto(20)
+            back(100)
+            sleep(1)
+            expectedAngle -= 90
+            c = 3
+         elif c == 3:
+            distance = us.value()/10
+            print(str(distance) + " " + units)
+            turnRightAuto(30)
+            back(100)
+            sleep(1)
+            expectedAngle -= 90
+            c = 4
+         elif c == 4:
+            distance = us.value()/10
+            print(str(distance) + " " + units)
+            turnLeftAuto(40)
+            back(100)
+            sleep(1)
+            expectedAngle -= 90
+            c = 5
+         elif c == 5:
+            distance = us.value()/10
+            print(str(distance) + " " + units)
+            turnRightAuto(50)
+            back(100)
+            sleep(1)
+            expectedAngle -= 90
+            c = 6
+         elif c == 6:
+            distance = us.value()/10
+            print(str(distance) + " " + units)
+            turnLeftAuto(60)
+            back(100)
+            sleep(1)
+            expectedAngle -= 90
+            c = 7
+         elif c == 7:
+            distance = us.value()/10
+            print(str(distance) + " " + units)
+            turnRightAuto(70)
+            back(100)
+            sleep(1)
+            expectedAngle -= 90
+            c = 8
+         elif c == 8:
+            distance = us.value()/10
+            print(str(distance) + " " + units)
+            turnLeftAuto(80)
+            back(100)
+            sleep(1)
+            expectedAngle -= 90
+            c = 9
+         elif c == 9:
+            distance = us.value()/10
+            print(str(distance) + " " + units)
+            turnRightAuto(90)
+            back(100)
+            sleep(1)
+            expectedAngle -= 90
+            c = 10
+         elif c == 10:
+            distance = us.value()/10
+            print(str(distance) + " " + units)
+            turnLeftAuto(100)
+            back(100)
+            sleep(1)
+            expectedAngle -= 90
+            c = 1
+         '''elif c == 11:
+            distance = us.value()/10
+            print(str(distance) + " " + units)
+            turnRightAuto(30)
+            back(100)
+            sleep(1)
+            expectedAngle -= 90
+            c = 12
+         elif c == 12:
+            distance = us.value()/10
+            print(str(distance) + " " + units)
+            turnLeftAuto(30)
+            back(100)
+            sleep(1)
+            expectedAngle -= 90
+            c = 1'''
+      touch1 = TouchSensor('in4')
    exit()
 
 #======================================
