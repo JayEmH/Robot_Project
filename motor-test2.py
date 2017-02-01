@@ -4,14 +4,17 @@
 import termios, tty, sys
 from ev3dev.ev3 import *
 from time import sleep
+#These statements allow access to the necessary commands
 
 # attach large motors to ports B and C, medium motor to port A
+#This defines the motors as variable names
 motor_left = LargeMotor('outB')
 motor_right = LargeMotor('outC')
 motor_a = MediumMotor('outA')
 speed = 400
 #==============================================
-
+#This definition allows the program to accept keyboard input
+# getch() will return the key pressed
 def getch():
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
@@ -22,13 +25,13 @@ def getch():
     return ch
 
 #==============================================
-
+#Run the sweeper forward at speed ss
 def fire_forward(ss):
    motor_a.run_forever(speed_sp= ss)
 
 
 #==============================================
-
+#Run the sweeper backward at speed ss
 def fire_backward(ss):
    motor_a.run_forever(speed_sp=-ss)
 
@@ -56,13 +59,13 @@ def right(speed):
    motor_left.run_forever(speed_sp=speed)
    motor_right.run_forever(speed_sp=-speed)
 #===============================================
-
+#Does not affect function
 def jokes(type):
    if type == 's':
       print("Are You Sure You Wish to Self Destruct?")
 
 #==============================================
-
+#Only stops whells
 def stop():
    motor_left.run_forever(speed_sp=0)
    motor_right.run_forever(speed_sp=0)
@@ -73,6 +76,9 @@ def stopSweeper():
    motor_a.run_forever(speed_sp=0)
 
 #==============================================
+#Used to remotly control the robot. Speeds are initally set a 50% and
+#can be adjusted by the user. The variable k is equal to the key pressed
+#'b' allows the user to switch modes by breaking the loop
 def manual():
    print("Manual Mode Engaged!")
    speed = 500
@@ -125,6 +131,8 @@ def manual():
    test()
 
 #=======================================
+#Turn the robot right a specified amount of degrees, measured by the
+#gyroscope
 def turnRightAuto(turnDeg):
    gy = GyroSensor('in1')
    #gy.mode = 'GYRO-ANG'
@@ -139,6 +147,8 @@ def turnRightAuto(turnDeg):
    print("Right Turn Success")
    stop()
 #=======================================
+#Turn the robot left a specified amount of degrees, measured by the
+#gyroscope
 def turnLeftAuto(turnDeg):
    gy = GyroSensor('in1')
    #gy.mode = 'GYRO-ANG'
@@ -154,6 +164,8 @@ def turnLeftAuto(turnDeg):
    stop()
 
 #======================================
+#This defintion is not yet used. It is a WIP attempting to prevent
+#the robot from straying when it should be traveling on a straight path
 def checkPath(expectedAngle, actualAngle): #Checks to see if the robot has strayed off path
    if expectedAngle > (actualAngle + 5):
       print('Expected: ' + str(expectedAngle))
@@ -171,6 +183,8 @@ def checkPath(expectedAngle, actualAngle): #Checks to see if the robot has stray
       None
 
 #======================================
+#This is the automatic navigation class. Please refer to documentation in
+#bullet doc for explanation
 def auto():
    c = 1
    c2 =0
@@ -285,6 +299,8 @@ def auto():
             sleep(1)
             expectedAngle -= 90
             c = 1
+         #these oscillations are not used, but are not removed in case
+         #future programs require wider turns
          '''elif c == 11:
             distance = us.value()/10
             print(str(distance) + " " + units)
@@ -305,7 +321,8 @@ def auto():
    exit()
 
 #======================================
-
+#This test protocol simply returns the value of the selected sensor
+#The robot is used as a sort of 'sensor mule' for experimentation
 def test():
    print("Test Mode Engaged!")
    while True:
@@ -335,7 +352,8 @@ def test():
          exit()
    manual()
 #======================================
-
+#This is the initial loop. The main "while True" loops are activated
+#by inputting an 'a', 'm', or 't'
 print("Please Select a Mode")
 print ("Autonomous (a), Manual (m), or Test (t)")
 k = None
