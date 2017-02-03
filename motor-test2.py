@@ -4,17 +4,14 @@
 import termios, tty, sys
 from ev3dev.ev3 import *
 from time import sleep
-#These statements allow access to the necessary commands
 
 # attach large motors to ports B and C, medium motor to port A
-#This defines the motors as variable names
 motor_left = LargeMotor('outB')
 motor_right = LargeMotor('outC')
 motor_a = MediumMotor('outA')
 speed = 400
 #==============================================
-#This definition allows the program to accept keyboard input
-# getch() will return the key pressed
+
 def getch():
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
@@ -25,13 +22,13 @@ def getch():
     return ch
 
 #==============================================
-#Run the sweeper forward at speed ss
+
 def fire_forward(ss):
    motor_a.run_forever(speed_sp= ss)
 
 
 #==============================================
-#Run the sweeper backward at speed ss
+
 def fire_backward(ss):
    motor_a.run_forever(speed_sp=-ss)
 
@@ -59,13 +56,13 @@ def right(speed):
    motor_left.run_forever(speed_sp=speed)
    motor_right.run_forever(speed_sp=-speed)
 #===============================================
-#Does not affect function
+
 def jokes(type):
    if type == 's':
       print("Are You Sure You Wish to Self Destruct?")
 
 #==============================================
-#Only stops whells
+
 def stop():
    motor_left.run_forever(speed_sp=0)
    motor_right.run_forever(speed_sp=0)
@@ -76,9 +73,6 @@ def stopSweeper():
    motor_a.run_forever(speed_sp=0)
 
 #==============================================
-#Used to remotly control the robot. Speeds are initally set a 50% and
-#can be adjusted by the user. The variable k is equal to the key pressed
-#'b' allows the user to switch modes by breaking the loop
 def manual():
    print("Manual Mode Engaged!")
    speed = 500
@@ -102,6 +96,8 @@ def manual():
          stop()
       if k == 'v':
          stopSweeper()
+      if k == 'p':
+         Sound.play('sounds/Hey.wav')
       if k == 'z':
          exit()
       if k == 'm':
@@ -131,8 +127,6 @@ def manual():
    test()
 
 #=======================================
-#Turn the robot right a specified amount of degrees, measured by the
-#gyroscope
 def turnRightAuto(turnDeg):
    gy = GyroSensor('in1')
    #gy.mode = 'GYRO-ANG'
@@ -140,15 +134,21 @@ def turnRightAuto(turnDeg):
    finalAngle = initialAngle + turnDeg
    stop()
    while gy.value() < finalAngle:
-      right(100)
-      unitg = gy.units
-      #print(str(gy.value()) + " " + unitg)
-      touch1 = TouchSensor('in4')
-   print("Right Turn Success")
+      right(300)
+      motorStates = motor_a.state
+      for i in range(len(motorStates)):
+         state = motorStates[i]
+         if state == 'stalled':
+            fire_backward(500)
+            sleep(1)
+            fire_forward(400)
+         else:
+            None
+      else:
+         None
+   print("Right Turn Success at " + str(turnDeg) + " degrees")
    stop()
 #=======================================
-#Turn the robot left a specified amount of degrees, measured by the
-#gyroscope
 def turnLeftAuto(turnDeg):
    gy = GyroSensor('in1')
    #gy.mode = 'GYRO-ANG'
@@ -156,16 +156,22 @@ def turnLeftAuto(turnDeg):
    finalAngle = initialAngle - turnDeg
    back(100)
    while gy.value() > finalAngle:
-      left(100)
-      unitg = gy.units
-      #print(str(gy.value()) + " " + unitg)
-      touch1 = TouchSensor('in4')
-   print("left turn success")
+      left(300)
+      motorStates = motor_a.state
+      for i in range(len(motorStates)):
+         state = motorStates[i]
+         if state == 'stalled':
+            fire_backward(500)
+            sleep(1)
+            fire_forward(400)
+         else:
+            None
+      else:
+         None
+   print("Left Turn Success at " + str(turnDeg) + " degrees")
    stop()
 
 #======================================
-#This defintion is not yet used. It is a WIP attempting to prevent
-#the robot from straying when it should be traveling on a straight path
 def checkPath(expectedAngle, actualAngle): #Checks to see if the robot has strayed off path
    if expectedAngle > (actualAngle + 5):
       print('Expected: ' + str(expectedAngle))
@@ -183,8 +189,6 @@ def checkPath(expectedAngle, actualAngle): #Checks to see if the robot has stray
       None
 
 #======================================
-#This is the automatic navigation class. Please refer to documentation in
-#bullet doc for explanation
 def auto():
    c = 1
    c2 =0
@@ -197,22 +201,33 @@ def auto():
    gy.mode = 'GYRO-ANG'
    initialAngle = gy.value()/10
    expectedAngle = initialAngle
-   #fire_forward(500)
+   fire_forward(750)
    while True:
       #checkPath(expectedAngle, (gy.value()/10))
       distance = us.value()/10  # convert mm to cm
       units = us.units
-      print(str(distance) + " " + units)
+      #print(str(distance) + " " + units)
       c2 += 1
-      if c2 == 15:
+      if c2 == 20:
          c=1
-         print("WARNING: Turn Count Reset")
+         print('Warning Turn Count Reset!')
       if btn.any():
          stop()
          stopSweeper()
          exit()
       if (((distance > 5) and (distance <20)) and (ts1.value() == 0) and (ts2.value() ==0)):
-         forward(200)
+         forward(400)
+         motorStates = motor_a.state
+         for i in range(len(motorStates)):
+            state = motorStates[i]
+            if state == 'stalled':
+               fire_backward(500)
+               sleep(1)
+               fire_forward(400)
+            else:
+               None
+         else:
+            None
       else:
          c2 = 0
          if ts1.value() == 1 or ts2.value() == 1:
@@ -220,6 +235,8 @@ def auto():
             sleep(1)
          else:
             None
+         forward(400)
+         sleep(0.5)
          if c == 1:
             turnRightAuto(10)
             back(100)
@@ -298,18 +315,16 @@ def auto():
             back(100)
             sleep(1)
             expectedAngle -= 90
-            c = 1
-         #these oscillations are not used, but are not removed in case
-         #future programs require wider turns
-         '''elif c == 11:
+            c = 11
+         elif c == 11:
             distance = us.value()/10
             print(str(distance) + " " + units)
-            turnRightAuto(30)
+            turnRightAuto(110)
             back(100)
             sleep(1)
             expectedAngle -= 90
-            c = 12
-         elif c == 12:
+            c = 1
+         '''elif c == 12:
             distance = us.value()/10
             print(str(distance) + " " + units)
             turnLeftAuto(30)
@@ -321,8 +336,7 @@ def auto():
    exit()
 
 #======================================
-#This test protocol simply returns the value of the selected sensor
-#The robot is used as a sort of 'sensor mule' for experimentation
+
 def test():
    print("Test Mode Engaged!")
    while True:
@@ -348,15 +362,22 @@ def test():
          print(str(angle) + " " + units)
       if k == 'b':
          break
+      if k == 'm':
+         print(motor_a.state)
+         motorStates = motor_a.state
+         for i in range(len(motorStates)):
+            state = motorStates[i]
+            if state == 'stalled':
+               print('True')
       if k == 'z':
          exit()
    manual()
 #======================================
-#This is the initial loop. The main "while True" loops are activated
-#by inputting an 'a', 'm', or 't'
+
 print("Please Select a Mode")
 print ("Autonomous (a), Manual (m), or Test (t)")
 k = None
+Sound.play('sounds/Hey.wav')
 while k!='a' and k!='m':
     k = getch()
     if k == 'a':
