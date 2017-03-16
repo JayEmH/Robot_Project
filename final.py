@@ -176,23 +176,6 @@ def turnLeftAuto(turnDeg):
    stop()
 
 #======================================
-def checkPath(expectedAngle, actualAngle): #Checks to see if the robot has strayed off path
-   if expectedAngle > (actualAngle + 5):
-      print('Expected: ' + str(expectedAngle))
-      print('Actual: ' + str(actualAngle))
-      offset = expectedAngle - actualAngle
-      turnRightAuto(offset)
-      print('Offset left ' + str(offset))
-   elif expectedAngle < (actualAngle -5):
-      print('Expected: ' + str(expectedAngle))
-      print('Actual: ' + str(actualAngle))
-      offset = expectedAngle - actualAngle
-      turnLeftAuto(offset)
-      print('offset right ' + str(offset))
-   else:
-      None
-
-#======================================
 def auto():
    print("Gyroscope Calibration in Progress...")
    c = 1
