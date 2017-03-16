@@ -215,14 +215,25 @@ def auto():
    fire_forward(750)
    # Main drive
    forward(200)
+   k = getch()
    distance = us.value() / 10  # convert mm to cm
    # Begin Changes
    # Elements in turnList: (Direction, degrees, time reverse, time forward)
    # Forward occurs PRIOR to turn
    # Reverse Occurs AFTER Turn and initiates next turn (does not wait on us sensor)
    # Direction input as 'R' or 'L' (Right or Left)
-   turnList = [('L', 70, 0, 0), ('R', 45, 0, 1), ('R', 25, 0, 0), ('R', 50, 2.1, 0.1), ('R', 40, 2, 0), ('R', 10, 1, 2), ('R', 10, 2, 1), ('L', 20, 0, 0)]
+   print("Select Task: P6 (6) or P4/5 (5)")
+   while k != '6' and k != '5':
+      k = getch()
+
+   if k == '5':
+      turnList = [('L', 70, 0, 0), ('R', 45, 0, 1), ('R', 25, 0, 0), ('R', 50, 2.1, 0.1), ('R', 40, 2, 0), ('R', 10, 1, 2), ('R', 10, 2, 1), ('L', 20, 0, 0)]
+   elif k == '6':
+      turnList = [('L', 70, 0, .5),('R', 300, 0, 3),('R', 300, 0, 1)]
+
    for i in range(len(turnList)):
+       if k == '6':
+         distance = 255
        while distance != 255 and ts1.value() == 0 and ts2.value() == 0:
            distance = us.value() / 10
        distance = 0
@@ -352,7 +363,6 @@ k = None
 while k!='a' and k!='m':
     k = getch()
     if k == 'a':
-       #Sound.play('sounds/Theme.wav')
        auto()
     if k == 'm':
        manual()
